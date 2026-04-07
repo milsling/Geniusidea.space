@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --accent: #0099ff;
+  --secondary: #a6a6a6;
+  --near-black: #090909;
+  --frosted: rgba(255,255,255,0.1);
+  --subtle-white: rgba(255,255,255,0.5);
+  --ghost-white: rgba(255,255,255,0.6);
+  --font-display: 'GT Walsheim', Inter, Arial, sans-serif;
+  --font-sans: Inter, Arial, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.055em;
+}
+
+.btn {
+  border-radius: 40px;
+  background: var(--frosted);
+  color: var(--foreground);
+  padding: 0.75em 2em;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-accent {
+  background: var(--accent);
+  color: var(--background);
+}
+.btn:hover {
+  background: var(--subtle-white);
+}
