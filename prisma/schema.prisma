@@ -1,0 +1,69 @@
+// Prisma schema for IdeaGenius.Space
+// Run `npx prisma migrate dev` after editing
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  password  String?
+  ideas     Idea[]
+  comments  Comment[]
+  likes     Like[]
+  follows   Follow[] @relation("Followee", references: [id])
+  following Follow[] @relation("Follower", references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Idea {
+  id          String    @id @default(cuid())
+  number      Int       @unique
+  category    String
+  title       String
+  body        String
+  imageUrl    String?
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  comments    Comment[]
+  likes       Like[]
+  createdAt   DateTime  @default(now())
+  hash        String
+  isPublic    Boolean   @default(true)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  idea      Idea     @relation(fields: [ideaId], references: [id])
+  ideaId    String
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  idea      Idea     @relation(fields: [ideaId], references: [id])
+  ideaId    String
+  createdAt DateTime @default(now())
+}
+
+model Follow {
+  id         String   @id @default(cuid())
+  follower   User     @relation("Follower", fields: [followerId], references: [id])
+  followerId String
+  followee   User     @relation("Followee", fields: [followeeId], references: [id])
+  followeeId String
+  createdAt  DateTime @default(now())
+}
