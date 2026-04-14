@@ -6,7 +6,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'IdeaGenius.Space',
+  title: 'ThoughtCircus.Space',
   description: 'Browse, post, and share ideas. Minimal, creative, and open.',
 };
 
