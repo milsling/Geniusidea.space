@@ -3,6 +3,22 @@ import { Idea, UserVotes, VoteType } from '@/types/idea';
 const IDEAS_KEY = 'thoughtcircus_ideas';
 const USER_VOTES_KEY = 'thoughtcircus_user_votes';
 
+export function formatRelativeTime(isoString: string): string {
+  const diff = Date.now() - new Date(isoString).getTime();
+  if (isNaN(diff) || diff < 0) return 'Just now';
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+export function isValidImageData(value: unknown): value is string {
+  return typeof value === 'string' && /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(value);
+}
+
 // Get all ideas from localStorage
 export function getIdeas(): Idea[] {
   if (typeof window === 'undefined') return [];
@@ -64,10 +80,12 @@ export function castVote(ideaId: string, voteType: VoteType | null, userEmail: s
   idea.totalInteractions = idea.votes.good.length + idea.votes.bad.length + idea.votes.genius.length;
   idea.dominantCategory = calculateDominantCategory(idea.votes);
   
-  // Save
+  // Save atomically — write both keys before returning
   ideas[ideaIndex] = idea;
-  saveIdeas(ideas);
-  saveUserVotes(userVotes);
+  const serializedIdeas = JSON.stringify(ideas);
+  const serializedVotes = JSON.stringify(userVotes);
+  localStorage.setItem(IDEAS_KEY, serializedIdeas);
+  localStorage.setItem(USER_VOTES_KEY, serializedVotes);
   
   return idea;
 }

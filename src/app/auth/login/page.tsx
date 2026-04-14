@@ -5,9 +5,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lightbulb, Zap, Sparkles, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
-// Hardcoded owner account for development
-const OWNER_EMAIL = 'owner@thoughtcircus.space';
-const OWNER_PASSWORD = 'owner123';
+const OWNER_EMAIL = process.env.NEXT_PUBLIC_OWNER_EMAIL ?? 'owner@thoughtcircus.space';
+const OWNER_PASSWORD = process.env.NEXT_PUBLIC_OWNER_PASSWORD ?? 'owner123';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -34,7 +33,7 @@ export default function LoginPage() {
         }));
         router.push('/ideas');
       } else {
-        setError('Invalid credentials. Use owner@thoughtcircus.space / owner123');
+        setError('Invalid email or password.');
         setIsLoading(false);
       }
     }, 500);

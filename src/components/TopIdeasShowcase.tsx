@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Trophy, TrendingUp, ThumbsUp, ThumbsDown, Sparkles, ArrowRight } from 'lucide-react';
-import { getTodaysTopIdeas, getIdeas } from '@/lib/storage';
+import { getTodaysTopIdeas, seedSampleData } from '@/lib/storage';
 import { Idea } from '@/types/idea';
 
 interface TopIdeas {
@@ -17,8 +17,7 @@ export default function TopIdeasShowcase() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Seed sample data if empty
-    getIdeas();
+    seedSampleData();
     
     const ideas = getTodaysTopIdeas();
     setTopIdeas(ideas);
@@ -138,7 +137,7 @@ export default function TopIdeasShowcase() {
                 <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-200/50">
                   <div className="flex items-center gap-2">
                     <div className={`w-7 h-7 ${config.iconBg} rounded-full flex items-center justify-center text-white text-xs font-bold`}>
-                      {idea.author.charAt(1).toUpperCase()}
+                      {(idea.author.startsWith('@') ? idea.author.slice(1) : idea.author).charAt(0).toUpperCase() || '?'}
                     </div>
                     <span className="text-xs font-medium text-gray-600">{idea.author}</span>
                   </div>

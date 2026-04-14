@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useReducer, forwardRef, useImperativeHandle } from 'react';
 import { 
   Pencil, 
   Square, 
@@ -26,6 +26,33 @@ interface Point {
 
 interface CanvasState {
   imageData: ImageData;
+}
+
+interface HistoryState {
+  stack: CanvasState[];
+  index: number;
+}
+
+type HistoryAction =
+  | { type: 'push'; state: CanvasState }
+  | { type: 'undo' }
+  | { type: 'redo' };
+
+function historyReducer(state: HistoryState, action: HistoryAction): HistoryState {
+  switch (action.type) {
+    case 'push': {
+      const newStack = state.stack.slice(0, state.index + 1);
+      newStack.push(action.state);
+      if (newStack.length > 20) newStack.shift();
+      return { stack: newStack, index: newStack.length - 1 };
+    }
+    case 'undo':
+      return state.index > 0 ? { ...state, index: state.index - 1 } : state;
+    case 'redo':
+      return state.index < state.stack.length - 1 ? { ...state, index: state.index + 1 } : state;
+    default:
+      return state;
+  }
 }
 
 const COLORS = [
@@ -70,8 +97,8 @@ const SketchCanvas = forwardRef<SketchCanvasRef, SketchCanvasProps>(function Ske
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point | null>(null);
   const [zoom, setZoom] = useState(1);
-  const [history, setHistory] = useState<CanvasState[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [historyState, dispatchHistory] = useReducer(historyReducer, { stack: [], index: -1 });
+  const { stack: history, index: historyIndex } = historyState;
   const [textInput, setTextInput] = useState('');
   const [textPosition, setTextPosition] = useState<Point | null>(null);
   const [showTextInput, setShowTextInput] = useState(false);
@@ -131,24 +158,13 @@ const SketchCanvas = forwardRef<SketchCanvasRef, SketchCanvasProps>(function Ske
     if (!ctx) return;
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const newState: CanvasState = { imageData };
-
-    setHistory(prev => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push(newState);
-      // Limit history to 20 states
-      if (newHistory.length > 20) {
-        newHistory.shift();
-      }
-      return newHistory;
-    });
-    setHistoryIndex(prev => Math.min(prev + 1, 19));
-  }, [historyIndex]);
+    dispatchHistory({ type: 'push', state: { imageData } });
+  }, []);
 
   const undo = useCallback(() => {
     if (historyIndex > 0) {
       const newIndex = historyIndex - 1;
-      setHistoryIndex(newIndex);
+      dispatchHistory({ type: 'undo' });
       const state = history[newIndex];
       if (state) {
         const canvas = canvasRef.current;
@@ -163,7 +179,7 @@ const SketchCanvas = forwardRef<SketchCanvasRef, SketchCanvasProps>(function Ske
   const redo = useCallback(() => {
     if (historyIndex < history.length - 1) {
       const newIndex = historyIndex + 1;
-      setHistoryIndex(newIndex);
+      dispatchHistory({ type: 'redo' });
       const state = history[newIndex];
       if (state) {
         const canvas = canvasRef.current;
@@ -543,9 +559,7 @@ const SketchCanvas = forwardRef<SketchCanvasRef, SketchCanvasProps>(function Ske
           className="relative bg-white shadow-lg"
           style={{ 
             width: width * zoom, 
-            height: height * zoom,
-            transform: `scale(${zoom})`,
-            transformOrigin: 'center center'
+            height: height * zoom
           }}
         >
           <canvas

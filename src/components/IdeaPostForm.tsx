@@ -16,8 +16,8 @@ export default function IdeaPostForm() {
           Genius Idea
         </label>
         <label className="flex items-center gap-2">
-          <input type="radio" name="category" value="stupid" checked={category === 'stupid'} onChange={() => setCategory('stupid')} />
-          Stupid Idea
+          <input type="radio" name="category" value="bad" checked={category === 'bad'} onChange={() => setCategory('bad')} />
+          Bad Idea
         </label>
       </div>
       <input

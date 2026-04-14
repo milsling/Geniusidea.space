@@ -20,7 +20,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import VoteButtons, { VoteDistribution, CategoryBadge } from '@/components/VoteButtons';
-import { getIdeas, castVote, hasUserVoted, seedSampleData, getTodaysTopIdeas } from '@/lib/storage';
+import { getIdeas, castVote, hasUserVoted, seedSampleData, getTodaysTopIdeas, isValidImageData, formatRelativeTime } from '@/lib/storage';
 import { Idea, VoteType, User } from '@/types/idea';
 
 export default function IdeasPage() {
@@ -94,7 +94,8 @@ export default function IdeasPage() {
   const filteredIdeas = ideas.filter(idea => {
     if (idea.privacy === 'private') return false; // Don't show private ideas in feed
     if (activeFilter === 'all') return true;
-    return idea.dominantCategory === activeFilter || idea.category === activeFilter;
+    const effectiveCategory = idea.dominantCategory ?? idea.category;
+    return effectiveCategory === activeFilter;
   }).filter(idea => 
     idea.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     idea.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -271,7 +272,7 @@ export default function IdeasPage() {
                       </div>
                       <div>
                         <span className="text-[14px] font-semibold text-black">{idea.author}</span>
-                        <p className="text-[12px] text-[rgba(60,60,67,0.4)]">{idea.timestamp}</p>
+                        <p className="text-[12px] text-[rgba(60,60,67,0.4)]">{formatRelativeTime(idea.postedAt)}</p>
                       </div>
                     </div>
                     <span
@@ -287,7 +288,7 @@ export default function IdeasPage() {
                   <p className="text-[14px] text-[rgba(60,60,67,0.6)] leading-relaxed mb-3">{idea.description}</p>
 
                   {/* Sketch */}
-                  {idea.imageData && (
+                  {isValidImageData(idea.imageData) && (
                     <div className="mb-3 rounded-xl overflow-hidden border border-[rgba(60,60,67,0.08)]">
                       <img src={idea.imageData} alt="Sketch" className="w-full max-h-64 object-contain bg-[#F2F2F7]" />
                     </div>

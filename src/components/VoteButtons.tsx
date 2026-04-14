@@ -141,10 +141,10 @@ export function VoteDistribution({ votes }: VoteDistributionProps) {
       <div className="flex items-center justify-between mt-1 text-xs text-gray-500">
         <span>{total} votes</span>
         <span>
-          {geniusPct > goodPct && geniusPct > badPct && '🔥 Mostly Genius'}
-          {goodPct > geniusPct && goodPct > badPct && '👍 Mostly Good'}
-          {badPct > geniusPct && badPct > goodPct && '🤔 Mostly Bad'}
-          {goodPct === badPct && goodPct === geniusPct && '⚖️ Split Decision'}
+          {geniusPct > goodPct && geniusPct > badPct ? '🔥 Mostly Genius' :
+           goodPct > geniusPct && goodPct > badPct ? '👍 Mostly Good' :
+           badPct > geniusPct && badPct > goodPct ? '🤔 Mostly Bad' :
+           '⚖️ Split Decision'}
         </span>
       </div>
     </div>

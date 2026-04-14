@@ -66,8 +66,7 @@ export default function PostIdeaPage() {
     return canvasRef.current.getImageData();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!title.trim() || !description.trim() || !user) return;
 
     setIsSubmitting(true);
